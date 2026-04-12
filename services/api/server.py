@@ -7,12 +7,22 @@ app = Flask(__name__)
 mqtt_client = mqtt.Client()
 mqtt_client.connect("broker", 1883, 60)
 
+@app.route("/")
+def home():
+    return """
+    <h2>Input Suhu</h2>
+    <form action="/send" method="post">
+        <input type="text" name="suhu" placeholder="Masukkan suhu">
+        <button type="submit">Kirim</button>
+    </form>
+    """
+
 # endpoint lama (GET)
 @app.route("/data", methods=["GET"])
 def get_data():
     return jsonify({"message": "Gunakan POST /send untuk kirim data suhu"})
 
-# 🔥 endpoint baru (POST)
+# endpoint baru (POST)
 @app.route("/send", methods=["POST"])
 def send_data():
     suhu = request.form.get("suhu")
