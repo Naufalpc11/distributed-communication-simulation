@@ -1,11 +1,28 @@
 from flask import Flask, request, jsonify
 import paho.mqtt.client as mqtt
 
+# Flask API that publishes temperature input to MQTT.
 app = Flask(__name__)
 
-# koneksi ke MQTT broker
+# Shared MQTT client used by route handlers.
 mqtt_client = mqtt.Client()
-mqtt_client.connect("broker", 1883, 60)
+
+latest_auto = "Belum ada data"
+latest_manual = "Belum ada data"
+
+def on_message(client, userdata, msg):
+    global latest_auto, latest_manual
+
+    data = msg.payload.decode()
+
+    if data.startswith("AUTO:"):
+        latest_auto = data.replace("AUTO:", "")
+        print("[API] Data AUTO:", latest_auto, flush=True)
+
+    elif data.startswith("MANUAL:"):
+        latest_manual = data.replace("MANUAL:", "")
+        print("[API] Data MANUAL:", latest_manual, flush=True)
+
 
 @app.route("/")
 def home():
@@ -17,12 +34,15 @@ def home():
     </form>
     """
 
-# endpoint lama (GET)
 @app.route("/data", methods=["GET"])
 def get_data():
-    return jsonify({"message": "Gunakan POST /send untuk kirim data suhu"})
+    return jsonify({
+        "latest_data (auto)": latest_auto,
+        "latest_manual": latest_manual
 
-# endpoint baru (POST)
+    })
+
+# Validate form input then publish to topic sensor/suhu.
 @app.route("/send", methods=["POST"])
 def send_data():
     suhu = request.form.get("suhu")
@@ -30,7 +50,7 @@ def send_data():
     if not suhu:
         return jsonify({"error": "Suhu tidak boleh kosong"}), 400
 
-    data = f"Suhu: {suhu}°C"
+    data = f"Suhu Input Manual: {suhu}°C"
 
     mqtt_client.publish("sensor/suhu", data)
 
