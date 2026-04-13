@@ -10,7 +10,7 @@ client.connect("broker", 1883, 60)
 
 while True:
     suhu = random.randint(20, 35)
-    data = f"Suhu Otomatis: {suhu}°C"
+    data = f"AUTO:Suhu Otomatis: {suhu}°C"
 
     print("[PUBLISHER] Kirim:", data, flush=True)
 

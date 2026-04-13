@@ -15,12 +15,12 @@ def on_message(client, userdata, msg):
 
     data = msg.payload.decode()
 
-    if data.startswith("AUTO:"):
-        latest_auto = data.replace("AUTO:", "")
+    if "Otomatis" in data:
+        latest_auto = data
         print("[API] Data AUTO:", latest_auto, flush=True)
 
-    elif data.startswith("MANUAL:"):
-        latest_manual = data.replace("MANUAL:", "")
+    else:
+        latest_manual = data
         print("[API] Data MANUAL:", latest_manual, flush=True)
 
 
@@ -58,5 +58,11 @@ def send_data():
         "status": "berhasil",
         "data_dikirim": data
     })
+
+mqtt_client.on_message = on_message
+mqtt_client.connect("broker", 1883, 60)
+mqtt_client.subscribe("sensor/suhu")
+
+mqtt_client.loop_start()
 
 app.run(host="0.0.0.0", port=5000)

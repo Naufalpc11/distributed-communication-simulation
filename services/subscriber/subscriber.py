@@ -5,9 +5,6 @@ def on_connect(client, userdata, flags, rc):
     client.subscribe("sensor/suhu")
 
 def on_message(client, userdata, msg):
-    print("[SUBSCRIBER] Terima:", msg.payload.decode(), flush=True)
-
-def on_message(client, userdata, msg):
     data = msg.payload.decode()
     print("[SUBSCRIBER] Terima:", data, flush=True)
 
